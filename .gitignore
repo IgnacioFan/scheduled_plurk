@@ -1,0 +1,17 @@
+# Virtual Environment
+/venv
+/env
+/.venv
+/.env
+.env
+
+# Python
+__pycache__
+
+# Temporary files
+/tmp
+*.log
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
