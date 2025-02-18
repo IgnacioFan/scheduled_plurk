@@ -1,10 +1,9 @@
-from fastapi import FastAPI, Body, Depends, HTTPException
+from fastapi import FastAPI, Body, Depends, HTTPException, Path
 from sqlalchemy.orm import Session
-from auth import get_current_user_id
-from datetime import datetime
-from models import Post
 from database import get_db
 import schemas
+from auth import get_current_user_id
+from services.post_service import PostService
 
 app = FastAPI()
 
@@ -13,66 +12,48 @@ def get_scheduled_posts(
   db: Session = Depends(get_db),
   current_user_id: int = Depends(get_current_user_id)
 ):
-  posts = db.query(Post) \
-    .filter(
-      Post.post_at > datetime.now(),
-      Post.user_id == current_user_id
-    ) \
-    .order_by(Post.post_at) \
-    .all()
-  return posts
+  return PostService(db).get_scheduled_posts(current_user_id)
 
 @app.post("/api/v1/scheduled-posts", response_model=schemas.Post)
 def create_scheduled_post(
-  post: schemas.PostCreate,
   db: Session = Depends(get_db),
+  post: schemas.PostCreate = Body(...),
   current_user_id: int = Depends(get_current_user_id)
 ):
-  db_post = Post(content=post.content, post_at=post.post_at, user_id=current_user_id)
-  db.add(db_post)
-  db.commit()
-  db.refresh(db_post)
-  return db_post
+  return PostService(db).create_scheduled_post(post, current_user_id)
 
 @app.patch("/api/v1/scheduled-posts/{id}", response_model=schemas.Post)
 def edit_scheduled_post(
-  id: int,
-  post_update: schemas.PostUpdate,
   db: Session = Depends(get_db),
+  id: int = Path(...),
+  post_update: schemas.PostUpdate = Body(...),
   current_user_id: int = Depends(get_current_user_id)
 ):
-  db_post = db.query(Post) \
-    .filter(
-      Post.id == id,
-      Post.user_id == current_user_id
-    ) \
-    .first()
-  if not db_post:
-    raise HTTPException(status_code=404, detail="Post not found")
-
-  update_data = post_update.model_dump(exclude_unset=True)
-  for key, value in update_data.items():
-    setattr(db_post, key, value)
-
-  db.commit()
-  db.refresh(db_post)
-  return db_post
+  post, error = PostService(db).edit_scheduled_post(id, current_user_id, post_update)
+  if error:
+    raise HTTPException(status_code=404, detail=error["error"])
+  else:
+    return post
 
 @app.delete("/api/v1/scheduled-posts/{id}")
 def delete_scheduled_post(
-  id: int,
+  db: Session = Depends(get_db),
+  id: int = Path(...),
+  current_user_id: int = Depends(get_current_user_id)
+):
+  res = PostService(db).delete_scheduled_post(id, current_user_id)
+  if "error" in res:
+    raise HTTPException(status_code=404, detail=res["error"])
+  else:
+    return res
+
+@app.get("/api/v1/timeline")
+def get_timeline(
   db: Session = Depends(get_db),
   current_user_id: int = Depends(get_current_user_id)
 ):
-  db_post = db.query(Post) \
-    .filter(
-      Post.id == id,
-      Post.user_id == current_user_id
-    ) \
-    .first()
-  if not db_post:
-    raise HTTPException(status_code=404, detail="Post not found")
-
-  db.delete(db_post)
-  db.commit()
-  return {"message": "Scheduled post deleted successfully"}
+  # retrieve user's timeline post and scheduled post
+  # and user's connections' timeline posts
+  # and sort by post_at
+  # return the posts
+  return "return user's timeline posts"
