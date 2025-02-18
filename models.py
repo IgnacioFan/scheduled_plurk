@@ -12,6 +12,8 @@ class User(Base):
   updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
 
   posts = relationship("Post", back_populates="user")
+  followers = relationship("UserConnection", foreign_keys="UserConnection.following_id", back_populates="following")
+  followings = relationship("UserConnection", foreign_keys="UserConnection.follower_id", back_populates="follower")
 
 class Post(Base):
   __tablename__ = 'posts'
@@ -24,3 +26,16 @@ class Post(Base):
   updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
 
   user = relationship("User", back_populates="posts")
+
+class UserConnection(Base):
+  __tablename__ = 'user_connections'
+
+  id = Column(Integer, primary_key=True)
+  follower_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+  following_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+  status = Column(String(20), nullable=False, default='fan') # fan, friend
+  created_at = Column(DateTime, nullable=False, default=func.now())
+  updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
+
+  follower = relationship("User", foreign_keys=[follower_id], back_populates="followings")
+  following = relationship("User", foreign_keys=[following_id], back_populates="followers")

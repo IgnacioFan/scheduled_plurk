@@ -4,6 +4,7 @@ from database import get_db
 import schemas
 from auth import get_current_user_id
 from services.post_service import PostService
+from services.timeline_service import TimelineService
 
 app = FastAPI()
 
@@ -50,10 +51,8 @@ def delete_scheduled_post(
 @app.get("/api/v1/timeline")
 def get_timeline(
   db: Session = Depends(get_db),
-  current_user_id: int = Depends(get_current_user_id)
+  current_user_id: int = Depends(get_current_user_id),
+  limit: int = Query(default=50, ge=1, le=100),
+  offset: int = Query(default=0, ge=0)
 ):
-  # retrieve user's timeline post and scheduled post
-  # and user's connections' timeline posts
-  # and sort by post_at
-  # return the posts
-  return "return user's timeline posts"
+  return TimelineService(db).get_posts(current_user_id, limit=limit, offset=offset)
