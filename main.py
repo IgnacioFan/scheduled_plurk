@@ -4,7 +4,7 @@ from database import get_db
 from auth import get_current_user_id
 from services.post_service import PostService
 from services.timeline_service import TimelineService
-from schemas import Post, PostCreate, PostUpdate
+from schemas import Post, PostCreate, PostUpdate, TimelinePost
 
 app = FastAPI()
 
@@ -50,7 +50,7 @@ def delete_scheduled_post(
   else:
     return res
 
-@app.get("/api/v1/timeline")
+@app.get("/api/v1/timeline", response_model=list[TimelinePost])
 def get_timeline(
   db: Session = Depends(get_db),
   current_user_id: int = Depends(get_current_user_id),
