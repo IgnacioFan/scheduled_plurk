@@ -2,6 +2,16 @@ from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional
 
+class UserAuth(BaseModel):
+  user_id: int
+
+class User(BaseModel):
+  id: int
+  name: str
+
+  class Config:
+    from_attributes = True
+
 class PostBase(BaseModel):
   content: str
   post_at: datetime
@@ -15,13 +25,6 @@ class PostUpdate(PostBase):
 
 class Post(PostBase):
   pass
-
-class User(BaseModel):
-  id: int
-  name: str
-
-  class Config:
-    from_attributes = True
 
 class TimelinePost(BaseModel):
   id: int

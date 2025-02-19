@@ -1,12 +1,18 @@
 from fastapi import FastAPI, Depends, HTTPException, Query, Body, Path
 from sqlalchemy.orm import Session
 from database import get_db
-from auth import get_current_user_id
+from auth import get_current_user_id, create_access_token
 from services.post_service import PostService
 from services.timeline_service import TimelineService
-from schemas import Post, PostCreate, PostUpdate, TimelinePost
+from schemas import Post, PostCreate, PostUpdate, TimelinePost, UserAuth
 
 app = FastAPI()
+
+@app.post("/api/v1/auth/token")
+def create_token(
+  user_auth: UserAuth = Body(...)
+):
+  return create_access_token({"user_id": user_auth.user_id})
 
 @app.get("/api/v1/scheduled-posts", response_model=list[Post])
 def get_scheduled_posts(
