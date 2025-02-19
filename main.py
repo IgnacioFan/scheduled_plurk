@@ -1,14 +1,14 @@
-from fastapi import FastAPI, Body, Depends, HTTPException, Path
+from fastapi import FastAPI, Depends, HTTPException, Query, Body, Path
 from sqlalchemy.orm import Session
 from database import get_db
-import schemas
 from auth import get_current_user_id
 from services.post_service import PostService
 from services.timeline_service import TimelineService
+from schemas import Post, PostCreate, PostUpdate
 
 app = FastAPI()
 
-@app.get("/api/v1/scheduled-posts", response_model=list[schemas.Post])
+@app.get("/api/v1/scheduled-posts", response_model=list[Post])
 def get_scheduled_posts(
   db: Session = Depends(get_db),
   current_user_id: int = Depends(get_current_user_id),
@@ -17,19 +17,19 @@ def get_scheduled_posts(
 ):
   return PostService(db).get_scheduled_posts(current_user_id, limit=limit, offset=offset)
 
-@app.post("/api/v1/scheduled-posts", response_model=schemas.Post)
+@app.post("/api/v1/scheduled-posts", status_code=201, response_model=Post)
 def create_scheduled_post(
   db: Session = Depends(get_db),
-  post: schemas.PostCreate = Body(...),
+  post: PostCreate = Body(...),
   current_user_id: int = Depends(get_current_user_id)
 ):
   return PostService(db).create_scheduled_post(post, current_user_id)
 
-@app.patch("/api/v1/scheduled-posts/{id}", response_model=schemas.Post)
+@app.patch("/api/v1/scheduled-posts/{id}", response_model=Post)
 def edit_scheduled_post(
   db: Session = Depends(get_db),
   id: int = Path(...),
-  post_update: schemas.PostUpdate = Body(...),
+  post_update: PostUpdate = Body(...),
   current_user_id: int = Depends(get_current_user_id)
 ):
   post, error = PostService(db).edit_scheduled_post(id, current_user_id, post_update)

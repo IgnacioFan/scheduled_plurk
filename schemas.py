@@ -15,3 +15,19 @@ class PostUpdate(PostBase):
 
 class Post(PostBase):
   pass
+
+class User(BaseModel):
+  id: int
+  name: str
+
+  class Config:
+    from_attributes = True
+
+class TimelinePost(BaseModel):
+  id: int
+  content: str
+  post_at: datetime
+  user: User
+
+  class Config:
+    from_attributes = True
