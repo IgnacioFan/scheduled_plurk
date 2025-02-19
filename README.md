@@ -51,10 +51,16 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 ```
 
-5. Run migrations and start FastAPI server
+5. Run migrations, seed and start FastAPI server
 
 ```bash
+# run migrations
 alembic upgrade head
+
+# run seed
+python seed.py
+
+# start FastAPI server
 uvicorn main:app --reload
 # local: http://127.0.0.1:8000
 # live docs: http://127.0.0.1:8000/docs
@@ -67,6 +73,26 @@ pytest
 ```
 
 ## API Endpoints
+
+### Authentication
+
+#### Get Access Token
+
+Please set the token in the `Authorization` header with the `Bearer` prefix. If you don't have a token, you will get a 401 Unauthorized error.
+
+On live docs, you can set the token by clicking the `Authorize` button and inputting the token in the `Value` field. Don't forget to click `Authorize` button.
+
+Switch to another token on live docs, you can click `Logout` button and redo the previous step again.
+
+```bash
+POST api/v1/auth/token
+```
+
+```json
+{
+    "user_id": 1
+}
+```
 
 ### Posts
 
