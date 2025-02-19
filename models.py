@@ -1,5 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime, func, Text, ForeignKey
 from sqlalchemy.orm import declarative_base, relationship
+from datetime import datetime
 
 Base = declarative_base()
 
@@ -26,6 +27,17 @@ class Post(Base):
   updated_at = Column(DateTime, nullable=False, default=func.now(), onupdate=func.now())
 
   user = relationship("User", back_populates="posts")
+
+  @staticmethod
+  def is_scheduled(post_at: datetime):
+    return post_at > datetime.now()
+
+  @staticmethod
+  def is_published(post_at: datetime):
+    return post_at <= datetime.now()
+
+  def __repr__(self):
+    return f"<Post(id={self.id}, content='{self.content}', post_at='{self.post_at}', user_id='{self.user_id}')>"
 
 class UserConnection(Base):
   __tablename__ = 'user_connections'

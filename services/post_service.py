@@ -1,20 +1,23 @@
 from sqlalchemy.orm import Session
-from models import Post
-from datetime import datetime
-from schemas import PostCreate, PostUpdate
-from typing import Union, Dict
+from typing import Dict
+from ..models import Post
+from ..schemas import PostCreate, PostUpdate
+
+NOT_FOUND_ERROR = {"error": "Post not found"}
 
 class PostService:
   def __init__(self, db: Session):
     self.db = db
 
-  def get_scheduled_posts(self, user_id: int) -> list[Post]:
+  def get_scheduled_posts(self, user_id: int, limit: int = 50, offset: int = 0) -> list[Post]:
     return self.db.query(Post) \
       .filter(
         Post.user_id == user_id,
-        Post.post_at > datetime.now()
+        Post.is_scheduled(Post.post_at)
       ) \
-      .order_by(Post.post_at) \
+      .order_by(Post.post_at.desc()) \
+      .limit(limit) \
+      .offset(offset) \
       .all()
 
   def create_scheduled_post(self, post: PostCreate, user_id: int) -> Post:
@@ -28,11 +31,12 @@ class PostService:
     db_post = self.db.query(Post) \
       .filter(
         Post.id == post_id,
-        Post.user_id == user_id
+        Post.user_id == user_id,
+        Post.is_scheduled(Post.post_at)
       ) \
       .first()
     if not db_post:
-      return None, {"error": "Post not found"}
+      return None, NOT_FOUND_ERROR
 
     update_data = post.model_dump(exclude_unset=True)
     for key, value in update_data.items():
@@ -46,11 +50,12 @@ class PostService:
     db_post = self.db.query(Post) \
       .filter(
         Post.id == post_id,
-        Post.user_id == user_id
+        Post.user_id == user_id,
+        Post.is_scheduled(Post.post_at)
       ) \
       .first()
     if not db_post:
-      return {"error": "Post not found"}
+      return NOT_FOUND_ERROR
 
     self.db.delete(db_post)
     self.db.commit()

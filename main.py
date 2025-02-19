@@ -11,9 +11,11 @@ app = FastAPI()
 @app.get("/api/v1/scheduled-posts", response_model=list[schemas.Post])
 def get_scheduled_posts(
   db: Session = Depends(get_db),
-  current_user_id: int = Depends(get_current_user_id)
+  current_user_id: int = Depends(get_current_user_id),
+  limit: int = Query(default=50, ge=1, le=100),
+  offset: int = Query(default=0, ge=0)
 ):
-  return PostService(db).get_scheduled_posts(current_user_id)
+  return PostService(db).get_scheduled_posts(current_user_id, limit=limit, offset=offset)
 
 @app.post("/api/v1/scheduled-posts", response_model=schemas.Post)
 def create_scheduled_post(

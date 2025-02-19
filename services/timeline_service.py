@@ -2,7 +2,6 @@
 from sqlalchemy import select, union, literal
 from sqlalchemy.orm import Session
 from ..models import Post, UserConnection
-from datetime import datetime
 
 class TimelineService:
   def __init__(self, db: Session):
@@ -17,7 +16,7 @@ class TimelineService:
     return self.db.query(Post)\
         .filter(
             Post.user_id.in_(following_ids_subquery),
-            Post.post_at <= datetime.now(), # exclude scheduled posts
+            Post.is_published(Post.post_at)
         )\
         .order_by(Post.post_at.desc())\
         .limit(limit)\
