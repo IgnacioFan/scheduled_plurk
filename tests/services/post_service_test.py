@@ -2,10 +2,10 @@ import pytest
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
-from ..schemas import PostCreate, PostUpdate
-from ..models import Base, Post, User
-from ..config import TEST_DATABASE_URL
-from .post_service import PostService
+from schemas import PostCreate, PostUpdate
+from models import Base, Post, User
+from config import TEST_DATABASE_URL
+from services.post_service import PostService
 from datetime import datetime, timedelta
 # Setup test database
 engine = create_engine(TEST_DATABASE_URL)

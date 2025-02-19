@@ -1,7 +1,7 @@
 
 from sqlalchemy import select, union, literal
 from sqlalchemy.orm import Session
-from ..models import Post, UserConnection
+from models import Post, UserConnection
 
 class TimelineService:
   def __init__(self, db: Session):

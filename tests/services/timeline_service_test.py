@@ -3,9 +3,9 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy_utils import database_exists, create_database
-from ..models import Base, Post, User, UserConnection
-from ..config import TEST_DATABASE_URL
-from .timeline_service import TimelineService
+from models import Base, Post, User, UserConnection
+from config import TEST_DATABASE_URL
+from services.timeline_service import TimelineService
 
 # Setup test database
 engine = create_engine(TEST_DATABASE_URL)
@@ -77,7 +77,6 @@ def sample_data(db_session):
 
 def test_get_posts(timeline_service, sample_data, db_session):
     posts = timeline_service.get_posts(user_id=1)
-
     assert len(posts) == 4
     assert posts[0].content == "John's published post"
     assert posts[1].content == "Mark's published post 1"
@@ -90,7 +89,6 @@ def test_get_posts_pagination(timeline_service, sample_data, db_session):
     assert len(posts) == 2
     assert posts[0].content == "John's published post"
     assert posts[1].content == "Mark's published post 1"
-
     # Test with offset
     posts = timeline_service.get_posts(user_id=1, limit=2, offset=1)
     assert len(posts) == 2

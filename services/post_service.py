@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Dict
-from ..models import Post
-from ..schemas import PostCreate, PostUpdate
+from models import Post
+from schemas import PostCreate, PostUpdate
 
 NOT_FOUND_ERROR = {"error": "Post not found"}
 
